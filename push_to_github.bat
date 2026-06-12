@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
 
-echo Pushing to https://github.com/mfitsilis/gen_ai_demo
+echo Pushing to https://github.com/mfits76/gen_ai_demo
 echo.
 echo If this fails with "Repository not found", create the repo first:
 echo   1. Open https://github.com/new
