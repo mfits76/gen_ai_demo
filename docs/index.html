@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GenAI Integration Hub — Live Demo Output</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --border: #2d3a4f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      padding: 2rem 1.5rem 1rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 1.75rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .badge.ok { color: var(--ok); border-color: #166534; }
+    main { max-width: 960px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .card h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+    .card p { color: var(--muted); margin: 0 0 1rem; font-size: 0.95rem; }
+    pre {
+      background: #0b1020;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow: auto;
+      font-size: 0.78rem;
+      max-height: 320px;
+    }
+    .how {
+      display: grid;
+      gap: 0.75rem;
+    }
+    @media (min-width: 700px) {
+      .how { grid-template-columns: 1fr 1fr; }
+    }
+    code { color: #93c5fd; }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 2rem 1rem;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GenAI Integration Hub</h1>
+    <p class="subtitle">
+      Enterprise LLM integration demo — CRM, ERP, and SharePoint workflows with PII governance.
+      This page shows <strong>real output</strong> from the mock provider (regenerated on each deploy).
+    </p>
+    <div class="badges">
+      <span class="badge ok" id="status">Loading demo output…</span>
+      <a class="badge" href="https://github.com/mfits76/gen_ai_demo">Repository</a>
+      <a class="badge" href="https://github.com/mfits76/gen_ai_demo/actions">CI runs</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="card how">
+      <div>
+        <h2>Run in browser (GitHub)</h2>
+        <p>This static site — workflow JSON below, no install.</p>
+      </div>
+      <div>
+        <h2>Run in cloud (Codespaces)</h2>
+        <p>Repo → <strong>Code</strong> → <strong>Create codespace</strong> → <code>python scripts/start_server.py</code></p>
+      </div>
+      <div>
+        <h2>Run locally</h2>
+        <p><code>start.bat</code> or <code>run_demo.bat</code> after <code>pip install -e ".[dev]"</code></p>
+      </div>
+      <div>
+        <h2>CI on GitHub</h2>
+        <p>Every push runs <code>pytest</code> and the CLI demo automatically.</p>
+      </div>
+    </section>
+
+    <section class="card" id="crm">
+      <h2>1. CRM Ticket Triage</h2>
+      <p>Salesforce ticket → PII redaction → LLM → CRM update</p>
+      <pre id="crm-out">…</pre>
+    </section>
+
+    <section class="card" id="order">
+      <h2>2. Email Order Extraction</h2>
+      <p>Unstructured email → LLM → ERP inventory → draft order</p>
+      <pre id="order-out">…</pre>
+    </section>
+
+    <section class="card" id="doc">
+      <h2>3. Document Summarization</h2>
+      <p>SharePoint document → LLM summary with action items</p>
+      <pre id="doc-out">…</pre>
+    </section>
+  </main>
+
+  <footer>
+  <a href="https://github.com/mfits76/gen_ai_demo">mfits76/gen_ai_demo</a> · MIT License
+  </footer>
+
+  <script>
+    function show(el, data) {
+      el.textContent = JSON.stringify(data, null, 2);
+    }
+
+    fetch("demo-output.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("demo-output.json not found");
+        return r.json();
+      })
+      .then((data) => {
+        document.getElementById("status").textContent =
+          "Demo output · provider: " + data.provider;
+        const w = data.workflows;
+        show(document.getElementById("crm-out"), w.crm_ticket_triage?.final_output ?? w.crm_ticket_triage);
+        show(document.getElementById("order-out"), w.email_order_extraction?.final_output ?? w.email_order_extraction);
+        show(document.getElementById("doc-out"), w.document_summarization?.final_output ?? w.document_summarization);
+      })
+      .catch((err) => {
+        document.getElementById("status").textContent = "Could not load demo output";
+        document.querySelectorAll("pre").forEach((el) => {
+          el.textContent = err.message;
+        });
+      });
+  </script>
+</body>
+</html>

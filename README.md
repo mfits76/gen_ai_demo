@@ -1,12 +1,25 @@
 # GenAI Integration Hub
 
+[![CI](https://github.com/mfits76/gen_ai_demo/actions/workflows/ci.yml/badge.svg)](https://github.com/mfits76/gen_ai_demo/actions/workflows/ci.yml)
+[![GitHub Pages](https://img.shields.io/badge/demo-live%20output-blue)](https://mfits76.github.io/gen_ai_demo/)
+
 A production-style Python platform for **MF Corp** that demonstrates how Large Language Models can be integrated into existing enterprise landscapes — connecting CRM, ERP, and collaboration systems through secure REST APIs and automated workflows.
+
+## Try without installing
+
+| Option | What you get |
+|--------|----------------|
+| **[Live demo page](https://mfits76.github.io/gen_ai_demo/)** | Static site with real workflow JSON output (no setup) |
+| **[GitHub Actions](https://github.com/mfits76/gen_ai_demo/actions)** | `pytest` + CLI demo run automatically on every push |
+| **GitHub Codespaces** | Full app in the cloud: **Code** → **Create codespace** → `python scripts/start_server.py` |
+
+The REST API itself cannot run inside GitHub’s website — use Codespaces or a local install for `/docs` and live API calls.
 
 ## Why this project maps to the role
 
 | Job requirement | Implementation |
 |-----------------|----------------|
-| LLM integration (OpenAI, Anthropic, Azure, Hugging Face) | Pluggable provider abstraction with mock, OpenAI, and Anthropic backends |
+| LLM integration (OpenAI, Anthropic, Ollama, Azure, Hugging Face) | Pluggable provider abstraction with mock, Ollama, OpenAI, and Anthropic backends |
 | Enterprise system coupling (CRM, ERP, collaboration) | Salesforce-style CRM, SAP-style ERP, SharePoint connectors |
 | API development & management (REST, OAuth) | FastAPI REST layer with API-key and OAuth2 bearer token auth |
 | Workflow automation | Three end-to-end workflows orchestrating fetch → govern → LLM → push |
