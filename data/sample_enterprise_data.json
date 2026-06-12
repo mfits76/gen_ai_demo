@@ -1,0 +1,15 @@
+{
+  "crm_tickets": [
+    {
+      "id": "TKT-1001",
+      "customer": "Müller AG",
+      "subject": "Rechnungsabweichung Q1",
+      "priority": "high"
+    }
+  ],
+  "erp_products": [
+    {"sku": "SKU-A100", "name": "Industrial Sensor Module", "stock": 142},
+    {"sku": "SKU-B200", "name": "Control Unit Pro", "stock": 23}
+  ],
+  "sample_email": "Bitte bestellen Sie 5 units von SKU-A100 für Kunde CUST-4521."
+}
