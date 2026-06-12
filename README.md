@@ -15,6 +15,20 @@ A production-style Python platform for **MF Corp** that demonstrates how Large L
 
 The REST API itself cannot run inside GitHub’s website — use Codespaces or a local install for `/docs` and live API calls.
 
+### Enable the demo page (if you see 404)
+
+**Option A — fastest (recommended):**
+
+1. Repo **Settings** → **Pages**
+2. **Build and deployment** → **Source:** `Deploy from a branch`
+3. **Branch:** `main` → folder **`/docs`** → **Save**
+4. Wait 1–2 minutes, then open [mfits76.github.io/gen_ai_demo](https://mfits76.github.io/gen_ai_demo/)
+
+**Option B — GitHub Actions deploy:**
+
+1. **Settings** → **Pages** → **Source:** `GitHub Actions`
+2. **Actions** → **Deploy GitHub Pages** → **Re-run all jobs**
+
 ## Why this project maps to the role
 
 | Job requirement | Implementation |
