@@ -10,25 +10,35 @@ Run from project root:
 
 import asyncio
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-VENV_PYTHON = PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"
+
+
+def _venv_python() -> Path:
+    if sys.platform == "win32":
+        return PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"
+    return PROJECT_ROOT / ".venv" / "bin" / "python"
 
 
 def _ensure_project_python() -> None:
-    if Path(sys.executable).resolve() == VENV_PYTHON.resolve():
+    if os.environ.get("CI"):
         return
-    if not VENV_PYTHON.exists():
+
+    venv_python = _venv_python()
+    if Path(sys.executable).resolve() == venv_python.resolve():
+        return
+    if not venv_python.exists():
         print(f"First run: creating virtual environment in {PROJECT_ROOT}")
         subprocess.check_call([sys.executable, "-m", "venv", str(PROJECT_ROOT / ".venv")])
         subprocess.check_call(
-            [str(VENV_PYTHON), "-m", "pip", "install", "-e", ".[dev]"],
+            [str(venv_python), "-m", "pip", "install", "-e", ".[dev]"],
             cwd=PROJECT_ROOT,
         )
-    raise SystemExit(subprocess.call([str(VENV_PYTHON), *sys.argv]))
+    raise SystemExit(subprocess.call([str(venv_python), *sys.argv]))
 
 
 _ensure_project_python()
