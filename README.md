@@ -1,154 +1,78 @@
 # GenAI Integration Hub
 
 [![CI](https://github.com/mfits76/gen_ai_demo/actions/workflows/ci.yml/badge.svg)](https://github.com/mfits76/gen_ai_demo/actions/workflows/ci.yml)
-[![GitHub Pages](https://img.shields.io/badge/demo-live%20output-blue)](https://mfits76.github.io/gen_ai_demo/)
+[![Demo](https://img.shields.io/badge/demo-live-blue)](https://mfits76.github.io/gen_ai_demo/)
 
-A production-style Python platform for **MF Corp** that demonstrates how Large Language Models can be integrated into existing enterprise landscapes — connecting CRM, ERP, and collaboration systems through secure REST APIs and automated workflows.
+Python demo for **MF Corp**: integrate LLMs with CRM, ERP, and SharePoint via REST APIs and automated workflows.
 
-## Try without installing
+**[Live demo](https://mfits76.github.io/gen_ai_demo/)** · **[CI runs](https://github.com/mfits76/gen_ai_demo/actions)** · no install needed for the static output
 
-| Option | What you get |
-|--------|----------------|
-| **[Live demo page](https://mfits76.github.io/gen_ai_demo/)** | Static site with real workflow JSON output (no setup) |
-| **[GitHub Actions](https://github.com/mfits76/gen_ai_demo/actions)** | `pytest` + CLI demo run automatically on every push |
-| **GitHub Codespaces** | Full app in the cloud: **Code** → **Create codespace** → `python scripts/start_server.py` |
+## What it does
 
-The REST API itself cannot run inside GitHub’s website — use Codespaces or a local install for `/docs` and live API calls.
+Three workflows, all following **fetch → govern → LLM → push**:
 
-### Enable the demo page (if you see 404)
+1. **CRM ticket triage** — classify support tickets and draft replies
+2. **Email order extraction** — pull orders from text, check ERP stock
+3. **Document summarization** — summarize SharePoint docs with action items
 
-**Option A — fastest (recommended):**
+LLM backends: **mock** (default, no keys), **Ollama**, OpenAI, Anthropic. Includes API-key/OAuth auth and PII redaction before LLM calls.
 
-1. Repo **Settings** → **Pages**
-2. **Build and deployment** → **Source:** `Deploy from a branch`
-3. **Branch:** `main` → folder **`/docs`** → **Save**
-4. Wait 1–2 minutes, then open [mfits76.github.io/gen_ai_demo](https://mfits76.github.io/gen_ai_demo/)
+## Quick start (Windows)
 
-**Option B — GitHub Actions deploy:**
-
-1. **Settings** → **Pages** → **Source:** `GitHub Actions`
-2. **Actions** → **Deploy GitHub Pages** → **Re-run all jobs**
-
-## Why this project maps to the role
-
-| Job requirement | Implementation |
-|-----------------|----------------|
-| LLM integration (OpenAI, Anthropic, Ollama, Azure, Hugging Face) | Pluggable provider abstraction with mock, Ollama, OpenAI, and Anthropic backends |
-| Enterprise system coupling (CRM, ERP, collaboration) | Salesforce-style CRM, SAP-style ERP, SharePoint connectors |
-| API development & management (REST, OAuth) | FastAPI REST layer with API-key and OAuth2 bearer token auth |
-| Workflow automation | Three end-to-end workflows orchestrating fetch → govern → LLM → push |
-| Data mapping & transformation | `DataTransformer` for JSON/XML mapping between system schemas |
-| Security & data privacy | PII redaction, regional compliance checks before LLM calls |
-| Python expertise | Core language; async/await throughout |
-| Technical documentation | OpenAPI docs at `/docs`, architecture below |
-
-## Architecture
-
-```
-┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  CRM        │────▶│  Workflow Engine │────▶│  LLM Providers  │
-│  (Salesforce)│     │  + Data Gov.     │     │  mock/openai/   │
-├─────────────┤     │  + Transformer   │     │  anthropic      │
-│  ERP (SAP)  │◀───▶│                  │◀───▶└─────────────────┘
-├─────────────┤     └────────┬─────────┘
-│ SharePoint  │              │
-└─────────────┘              ▼
-                    ┌──────────────────┐
-                    │  FastAPI REST    │
-                    │  /api/v1/...     │
-                    └──────────────────┘
+```bat
+start.bat          REM REST API  -> http://localhost:8000/docs
+run_demo.bat       REM CLI demo (mock LLM)
+test_ollama.bat    REM local Ollama, e.g. qwen2.5:0.5b
 ```
 
-## Workflows
-
-1. **CRM Ticket Triage** — Fetch support ticket → redact PII → LLM classifies intent and drafts response → update CRM
-2. **Email Order Extraction** — Parse unstructured email → extract SKU/quantity → check ERP inventory → create draft order
-3. **Document Summarization** — Fetch SharePoint document → LLM summary with key points and action items
-
-## Quick start
+Manual setup:
 
 ```bash
-# Create virtual environment
 python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# Install dependencies
-pip install -e ".[dev]"
-
-# Copy environment config
+.venv\Scripts\pip install -e ".[dev]"
 copy .env.example .env
-
-# Run interactive demo (no API keys needed)
 python examples/run_demo.py
-
-# Start REST API
-uvicorn genai_hub.main:app --reload
 ```
 
-Open **http://localhost:8000/docs** for the interactive API explorer.
+## API
 
-## API usage
-
-All workflow endpoints require authentication via `X-API-Key` header or OAuth2 bearer token.
+Default API key: `demo-api-key-change-in-production`
 
 ```bash
-# Health check (no auth)
 curl http://localhost:8000/api/v1/health
 
-# CRM triage workflow
 curl -X POST http://localhost:8000/api/v1/workflows/crm-triage \
   -H "X-API-Key: demo-api-key-change-in-production" \
   -H "Content-Type: application/json" \
-  -d '{"ticket_id": "TKT-1001"}'
-
-# Get OAuth2 token
-curl -X POST http://localhost:8000/api/v1/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"client_id": "demo-client", "client_secret": "demo-secret"}'
+  -d '{"ticket_id": "TKT-1001", "provider": "mock"}'
 ```
 
-## Connecting real LLM providers
-
-Set keys in `.env`:
+Use Ollama locally — in `.env`:
 
 ```env
-DEFAULT_LLM_PROVIDER=openai
-OPENAI_API_KEY=sk-...
+DEFAULT_LLM_PROVIDER=ollama
+OLLAMA_MODEL=qwen2.5:0.5b
 ```
 
-Install optional provider packages:
+## Project layout
 
-```bash
-pip install -e ".[openai,anthropic]"
+```
+src/genai_hub/
+  api/            REST endpoints
+  integrations/   CRM, ERP, SharePoint (demo connectors)
+  providers/      LLM backends
+  workflows/      orchestration engine
+  security/       auth + PII governance
 ```
 
-## Running tests
+## Tests
 
 ```bash
 pytest -v
 ```
 
-## Project structure
-
-```
-src/genai_hub/
-├── api/            # FastAPI routes and schemas
-├── integrations/   # CRM, ERP, SharePoint connectors
-├── mapping/        # Data transformation between systems
-├── providers/      # LLM provider abstraction
-├── security/       # Auth (API key, OAuth2) and PII governance
-└── workflows/      # Orchestration engine
-```
-
-## Presentation tips
-
-1. Run `python examples/run_demo.py` live to show all three workflows
-2. Walk through `/docs` to highlight REST API design and auth
-3. Open `workflows/engine.py` to explain the fetch → govern → LLM → push pattern
-4. Mention extensibility: swap mock connectors for real Salesforce/SAP APIs via the same interface
+Also runs automatically on every push via GitHub Actions.
 
 ## License
 
-MIT — free to use in portfolio and interview contexts.
+MIT
